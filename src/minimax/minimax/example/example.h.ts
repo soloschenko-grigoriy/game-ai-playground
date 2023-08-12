@@ -1,7 +1,7 @@
 import { IMove, IPlayer } from '../minimax.h'
 
 export interface ITicTacToePlayer extends IPlayer {
-  id: number
+  id: string
 }
 
 export interface ITicTacToeNode {

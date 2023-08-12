@@ -40,7 +40,7 @@ export class TicTacToeBoard implements IBoard {
 
   // assume its regular tic-tac-toe with 3x3 grid
 
-  // generate tests for this method 
+  // generate tests for this method
   public evaluate(player: ITicTacToePlayer): number {
     const playerNodes = this._occupiedNodes.filter((node) => node.byPlayer === player)
     const opponentNodes = this._occupiedNodes.filter((node) => node.byPlayer !== player)
@@ -82,5 +82,34 @@ export class TicTacToeBoard implements IBoard {
 
   public isGameOver(): boolean {
     return this._emptyNodes.length === 0
+  }
+
+  public getState(): string[][] {
+    const grid = [
+      [' ', ' ', ' '],
+      [' ', ' ', ' '],
+      [' ', ' ', ' '],
+    ]
+
+    for (let node of this._occupiedNodes) {
+      grid[node.node.y][node.node.x] = node.byPlayer.id.toString()
+    }
+
+    return grid
+  }
+
+  public toString(): string {
+    return this.getState()
+      .map((row) => row.join('|'))
+      .join('\n')
+  }
+
+  public clone(): TicTacToeBoard {
+    const board = new TicTacToeBoard(this._players, this._player)
+
+    board._emptyNodes = [...this._emptyNodes]
+    board._occupiedNodes = [...this._occupiedNodes]
+
+    return board
   }
 }
