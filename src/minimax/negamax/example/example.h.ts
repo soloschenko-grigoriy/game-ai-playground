@@ -4,16 +4,7 @@ export interface ITicTacToePlayer extends IPlayer {
   id: string
 }
 
-export interface ITicTacToeNode {
+export interface ITicTacToeMove extends IMove {
   x: number
   y: number
-}
-
-export interface ITicTacToeMove extends IMove {
-  to: ITicTacToeNode
-}
-
-export interface ITicTacToeOccupiedNode {
-  node: ITicTacToeNode
-  byPlayer: ITicTacToePlayer
 }

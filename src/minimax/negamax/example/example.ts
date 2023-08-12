@@ -1,104 +1,73 @@
-import { IBoard } from '../negamax.h'
-import { ITicTacToeMove, ITicTacToeNode, ITicTacToeOccupiedNode, ITicTacToePlayer } from './example.h'
+import { IBoard, IMove } from '../negamax.h'
+import { ITicTacToeMove, ITicTacToePlayer } from './example.h'
 
 export class TicTacToeBoard implements IBoard {
-  private readonly _nodes: ITicTacToeNode[] = [
-    { x: 0, y: 0 },
-    { x: 1, y: 0 },
-    { x: 2, y: 0 },
+  private readonly _nodes: string[][]
 
-    { x: 0, y: 1 },
-    { x: 1, y: 1 },
-    { x: 2, y: 1 },
+  private _player: ITicTacToePlayer
 
-    { x: 0, y: 2 },
-    { x: 1, y: 2 },
-    { x: 2, y: 2 },
-  ]
+  public get nodes(): string[][] {
+    return [...this._nodes.map((row) => [...row])]
+  }
 
-  private _emptyNodes: ITicTacToeNode[] = this._nodes
+  constructor(
+    private readonly _player1: ITicTacToePlayer,
+    private readonly _player2: ITicTacToePlayer,
 
-  private _occupiedNodes: ITicTacToeOccupiedNode[] = []
+    nodes?: string[][],
+  ) {
+    this._player = _player1
+    this._nodes = [
+      [' ', ' ', ' '],
+      [' ', ' ', ' '],
+      [' ', ' ', ' '],
+    ]
 
-  constructor(private readonly _players: ITicTacToePlayer[], private _player: ITicTacToePlayer) {
-    this._emptyNodes = this._nodes
-    this._occupiedNodes = []
+    if (nodes) {
+      this._nodes = nodes
+    }
   }
 
   public getMoves(): ITicTacToeMove[] {
-    return this._emptyNodes.map((node) => ({ to: node, byPlayer: this._player }))
-  }
-
-  public makeMove(move: ITicTacToeMove): TicTacToeBoard {
-    this._emptyNodes = this._emptyNodes.filter((node) => node !== move.to)
-    this._occupiedNodes.push({ node: move.to, byPlayer: this._player })
-
-    this._player = this._players.find((player) => player !== this._player)!
-
-    return this
-  }
-
-  private CalcScoreForPlayerNodes(nodes: ITicTacToeOccupiedNode[]): number {
-    if (nodes.length === 3) {
-      return 100
+    let emptyNodes: ITicTacToeMove[] = []
+    for (let x = 0; x < this._nodes.length; x++) {
+      for (let y = 0; y < this._nodes[x].length; y++) {
+        if (this.isEmptyNode(y, x)) {
+          emptyNodes.push({ x, y })
+        }
+      }
     }
 
-    if (nodes.length === 2) {
-      return 10
-    }
-
-    if (nodes.length === 1) {
-      return 1
-    }
-
-    return 0
+    return emptyNodes
   }
 
-  private CalcScoreForOpponentNodes(nodes: ITicTacToeOccupiedNode[]): number {
-    if (nodes.length === 3) {
-      return 100
+  public makeMove({ x, y }: ITicTacToeMove): TicTacToeBoard {
+    if (!this.isEmptyNode(y, x)) {
+      throw new Error(`Invalid move: ${x}, ${y}, \n${this.toString()}`)
     }
 
-    if (nodes.length === 2) {
-      return 10
-    }
+    this._nodes[y][x] = this._player.id
 
-    if (nodes.length === 1) {
-      return 1
-    }
+    this._player = this.getNextPlayer()
 
-    return 0
-  }
-
-  private getNodesInRow(playerNodes: ITicTacToeOccupiedNode[], i: number): ITicTacToeOccupiedNode[] {
-    return playerNodes.filter((n) => n.node.x === i)
-  }
-
-  private getNodesInColumn(playerNodes: ITicTacToeOccupiedNode[], i: number): ITicTacToeOccupiedNode[] {
-    return playerNodes.filter((n) => n.node.y === i)
-  }
-
-  private getNodesInDiag(playerNodes: ITicTacToeOccupiedNode[]): ITicTacToeOccupiedNode[] {
-    return playerNodes.filter(
-      (n) => n.node.x === n.node.y || (n.node.x === 2 && n.node.y === 0) || (n.node.x === 0 && n.node.y === 2),
-    )
+    return this.clone()
   }
 
   public evaluate(): number {
-    const playerNodes = this._occupiedNodes.filter((node) => node.byPlayer === this._player)
-    const opponentNodes = this._occupiedNodes.filter((node) => node.byPlayer !== this._player)
-
     let score = 0
 
     for (let i = 0; i < 3; i++) {
-      score += this.CalcScoreForPlayerNodes(this.getNodesInRow(playerNodes, i))
-      score -= this.CalcScoreForOpponentNodes(this.getNodesInRow(opponentNodes, i))
-      score += this.CalcScoreForPlayerNodes(this.getNodesInColumn(playerNodes, i))
-      score -= this.CalcScoreForOpponentNodes(this.getNodesInColumn(opponentNodes, i))
+      score += this.CalcScoreForPlayerNodes(this.getNodesInRow(i, this._player))
+      score -= this.CalcScoreForOpponentNodes(this.getNodesInRow(i, this.getNextPlayer()))
+      score += this.CalcScoreForPlayerNodes(this.getNodesInColumn(i, this._player))
+      score -= this.CalcScoreForOpponentNodes(this.getNodesInColumn(i, this.getNextPlayer()))
     }
 
-    score += this.CalcScoreForPlayerNodes(this.getNodesInDiag(playerNodes))
-    score -= this.CalcScoreForOpponentNodes(this.getNodesInDiag(opponentNodes))
+    score += this.CalcScoreForPlayerNodes(this.getNodesInMainDiagonal(this._player))
+    score -= this.CalcScoreForOpponentNodes(this.getNodesInMainDiagonal(this.getNextPlayer()))
+
+    score += this.CalcScoreForPlayerNodes(this.getNodesInSecondaryDiagonal(this._player))
+    score -= this.CalcScoreForOpponentNodes(this.getNodesInSecondaryDiagonal(this.getNextPlayer()))
 
     return score
   }
@@ -108,68 +77,88 @@ export class TicTacToeBoard implements IBoard {
   }
 
   public isGameOver(): boolean {
-    if (this._emptyNodes.length === 0) {
+    if (!this._nodes.some((row) => row.some((node) => !node.trim()))) {
       return true
     }
 
-    const playerNodes = this._occupiedNodes.filter((node) => node.byPlayer === this._player)
-    const opponentNodes = this._occupiedNodes.filter((node) => node.byPlayer !== this._player)
+    for (let j = 0; j < 2; j++) {
+      let player = j === 0 ? this._player : this.getNextPlayer()
 
-    for (let i = 0; i < 3; i++) {
-      if (this.getNodesInRow(playerNodes, i).length === 3) {
+      for (let i = 0; i < 3; i++) {
+        if (this.getNodesInRow(i, player).length === 3) {
+          return true
+        }
+
+        if (this.getNodesInColumn(i, player).length === 3) {
+          return true
+        }
+      }
+
+      if (this.getNodesInMainDiagonal(player).length === 3) {
         return true
       }
 
-      if (this.getNodesInRow(opponentNodes, i).length === 3) {
+      if (this.getNodesInSecondaryDiagonal(player).length === 3) {
         return true
       }
-
-      if (this.getNodesInColumn(playerNodes, i).length === 3) {
-        return true
-      }
-
-      if (this.getNodesInColumn(opponentNodes, i).length === 3) {
-        return true
-      }
-    }
-
-    if (this.getNodesInDiag(playerNodes).length === 3) {
-      return true
-    }
-
-    if (this.getNodesInDiag(opponentNodes).length === 3) {
-      return true
     }
 
     return false
   }
 
-  public getState(): string[][] {
-    const grid = [
-      [' ', ' ', ' '],
-      [' ', ' ', ' '],
-      [' ', ' ', ' '],
-    ]
-
-    for (let node of this._occupiedNodes) {
-      grid[node.node.y][node.node.x] = node.byPlayer.id.toString()
-    }
-
-    return grid
-  }
-
   public toString(): string {
-    return this.getState()
-      .map((row) => row.join('|'))
-      .join('\n')
+    return this._nodes.map((row) => row.join('|')).join('\n')
   }
 
   public clone(): TicTacToeBoard {
-    const board = new TicTacToeBoard(this._players, this._player)
+    return new TicTacToeBoard(this._player1, this._player2, this.nodes)
+  }
 
-    board._emptyNodes = [...this._emptyNodes]
-    board._occupiedNodes = [...this._occupiedNodes]
+  private getNextPlayer(): ITicTacToePlayer {
+    return this._player === this._player1 ? this._player2 : this._player1
+  }
 
-    return board
+  private CalcScoreForPlayerNodes(nodes: string[]): number {
+    if (nodes.length === 3) {
+      return 100
+    }
+
+    if (nodes.length === 2) {
+      return 10
+    }
+
+    return 0
+  }
+
+  private CalcScoreForOpponentNodes(nodes: string[]): number {
+    if (nodes.length === 3) {
+      return 100
+    }
+
+    if (nodes.length === 2) {
+      return 10
+    }
+
+    return 0
+  }
+
+  private getNodesInRow(i: number, player: ITicTacToePlayer): string[] {
+    return this._nodes[i].filter((n) => n === player.id)
+  }
+
+  private getNodesInColumn(i: number, player: ITicTacToePlayer): string[] {
+    return this._nodes.filter((n) => n[i] === player.id).map((n) => n[i])
+  }
+
+  private getNodesInMainDiagonal(player: ITicTacToePlayer): string[] {
+    return this._nodes.filter((n, i) => n[i] === player.id).map((n, i) => n[i])
+  }
+
+  private getNodesInSecondaryDiagonal(player: ITicTacToePlayer): string[] {
+    return this._nodes.filter((n, i) => n[2 - i] === player.id).map((n, i) => n[2 - i])
+  }
+
+  private isEmptyNode(x: number, y: number): boolean {
+    return !this._nodes[x][y].trim()
   }
 }
