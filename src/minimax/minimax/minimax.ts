@@ -1,6 +1,6 @@
-import { IBoard, IMinimaxResult, IMove, IPlayer } from './minimax.h'
+import { IBoard, IResult, IMove, IPlayer } from './minimax.h'
 
-export function minimax(board: IBoard, player: IPlayer, maxDepth: number, currentDepth: number): IMinimaxResult {
+export function minimax(board: IBoard, player: IPlayer, maxDepth: number, currentDepth: number): IResult {
   if (board.isGameOver() || currentDepth === maxDepth) {
     return { score: board.evaluate(player), move: null }
   }

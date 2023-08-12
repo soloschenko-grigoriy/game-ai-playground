@@ -1,7 +1,7 @@
 export interface IBoard {
   getMoves(): IMove[]
   makeMove(move: IMove): IBoard
-  evaluate(player: IPlayer): number
+  evaluate(): number
   currentPlayer(): IPlayer
   isGameOver(): boolean
 }
