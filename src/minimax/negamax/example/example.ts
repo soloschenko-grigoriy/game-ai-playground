@@ -53,7 +53,7 @@ export class TicTacToeBoard implements IBoard {
     return this.clone()
   }
 
-  public evaluate(): number {
+  public evaluateOld(): number {
     for (let j = 0; j < 2; j++) {
       let player = j === 0 ? this._player : this.getNextPlayer()
 
@@ -85,6 +85,188 @@ export class TicTacToeBoard implements IBoard {
     score += this.evaluateSecondaryDiagonal()
 
     return score
+  }
+
+  public evaluate(): number {
+    /**
+     * X2 is the number of lines with 2 X’s and a blank
+     * X1 is the number of lines with 1 X and 2 blanks
+     * O2 is the number of lines with 2 O’s and a blank
+     * O1 is the number of lines with 1 O and 2 blanks
+     *
+     * 3 * X2 + X1 – (3 * O2 + O1)
+     */
+
+    for (let j = 0; j < 2; j++) {
+      let player = j === 0 ? this._player : this.getNextPlayer()
+
+      for (let i = 0; i < 3; i++) {
+        if (this.countPlayerNodesInRow(i, player) === 3) {
+          return player === this._player ? Infinity : -Infinity
+        }
+
+        if (this.countPlayerNodesInColumn(i, player) === 3) {
+          return player === this._player ? Infinity : -Infinity
+        }
+      }
+
+      if (this.countPlayerNodesInMainDiagonal(player) === 3) {
+        return player === this._player ? Infinity : -Infinity
+      }
+
+      if (this.countPlayerNodesInSecondaryDiagonal(player) === 3) {
+        return player === this._player ? Infinity : -Infinity
+      }
+    }
+
+    const r1 = this.calcRows(this._player)
+    const r2 = this.calcColumns(this._player)
+    const r3 = this.calcMainDiag(this._player)
+    const r4 = this.calcSecondaryDiag(this._player)
+
+    const x2 = r1.x2 + r2.x2 + r3.x2 + r4.x2
+    const x1 = r1.x1 + r2.x1 + r3.x1 + r4.x1
+    const o2 = r1.o2 + r2.o2 + r3.o2 + r4.o2
+    const o1 = r1.o1 + r2.o1 + r3.o1 + r4.o1
+
+    return 3 * x2 + x1 - (3 * o2 + o1)
+  }
+
+  // X2 is the number of lines with 2 X’s and a blank
+  public calcRows(player: ITicTacToePlayer): { x2: number; x1: number; o2: number; o1: number } {
+    let x2 = 0
+    let x1 = 0
+    let o2 = 0
+    let o1 = 0
+
+    for (let i = 0; i < 3; i++) {
+      let playerScore = 0
+      let opponentScore = 0
+      let blanks = 0
+
+      this._nodes[i].forEach((n) => {
+        if (n === player.id) {
+          playerScore++
+        } else if (n === this.getOppositePlayer(player).id) {
+          opponentScore++
+        } else {
+          blanks++
+        }
+      })
+
+      if (playerScore > 1 && blanks === 1) {
+        x2++
+      } else if (playerScore === 1 && blanks === 2) {
+        x1++
+      } else if (opponentScore > 1 && blanks === 1) {
+        o2++
+      } else if (opponentScore === 1 && blanks === 2) {
+        o1++
+      }
+    }
+
+    return { x2, x1, o2, o1 }
+  }
+
+  public calcColumns(player: ITicTacToePlayer): { x2: number; x1: number; o2: number; o1: number } {
+    let x2 = 0
+    let x1 = 0
+    let o2 = 0
+    let o1 = 0
+
+    for (let i = 0; i < 3; i++) {
+      let playerScore = 0
+      let opponentScore = 0
+      let blanks = 0
+
+      this._nodes.forEach((n) => {
+        if (n[i] === player.id) {
+          playerScore++
+        } else if (n[i] === this.getOppositePlayer(player).id) {
+          opponentScore++
+        } else {
+          blanks++
+        }
+      })
+
+      if (playerScore > 1 && blanks === 1) {
+        x2++
+      } else if (playerScore === 1 && blanks === 2) {
+        x1++
+      } else if (opponentScore > 1 && blanks === 1) {
+        o2++
+      } else if (opponentScore === 1 && blanks === 2) {
+        o1++
+      }
+    }
+
+    return { x2, x1, o2, o1 }
+  }
+
+  public calcMainDiag(player: ITicTacToePlayer): { x2: number; x1: number; o2: number; o1: number } {
+    let x2 = 0
+    let x1 = 0
+    let o2 = 0
+    let o1 = 0
+
+    let playerScore = 0
+    let opponentScore = 0
+    let blanks = 0
+
+    this._nodes.forEach((n, i) => {
+      if (n[i] === player.id) {
+        playerScore++
+      } else if (n[i] === this.getOppositePlayer(player).id) {
+        opponentScore++
+      } else {
+        blanks++
+      }
+    })
+
+    if (playerScore > 1 && blanks === 1) {
+      x2++
+    } else if (playerScore === 1 && blanks === 2) {
+      x1++
+    } else if (opponentScore > 1 && blanks === 1) {
+      o2++
+    } else if (opponentScore === 1 && blanks === 2) {
+      o1++
+    }
+
+    return { x2, x1, o2, o1 }
+  }
+
+  public calcSecondaryDiag(player: ITicTacToePlayer): { x2: number; x1: number; o2: number; o1: number } {
+    let x2 = 0
+    let x1 = 0
+    let o2 = 0
+    let o1 = 0
+
+    let playerScore = 0
+    let opponentScore = 0
+    let blanks = 0
+
+    this._nodes.forEach((n, i) => {
+      if (n[2 - i] === player.id) {
+        playerScore++
+      } else if (n[2 - i] === this.getOppositePlayer(player).id) {
+        opponentScore++
+      } else {
+        blanks++
+      }
+    })
+
+    if (playerScore > 1 && blanks === 1) {
+      x2++
+    } else if (playerScore === 1 && blanks === 2) {
+      x1++
+    } else if (opponentScore > 1 && blanks === 1) {
+      o2++
+    } else if (opponentScore === 1 && blanks === 2) {
+      o1++
+    }
+
+    return { x2, x1, o2, o1 }
   }
 
   public evaluateRows(): number {
