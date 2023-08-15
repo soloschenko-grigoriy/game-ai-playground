@@ -56,18 +56,50 @@ export class TicTacToeBoard implements IBoard {
   public evaluate(): number {
     let score = 0
 
+    score += this.evaluateRows()
+    score += this.evaluateColumns()
+
+    score += this.evaluateMainDiagonal()
+    score += this.evaluateSecondaryDiagonal()
+
+    return score
+  }
+
+  public evaluateRows(): number {
+    let score = 0
+
     for (let i = 0; i < 3; i++) {
-      score += this.CalcScoreForPlayerNodes(this.getNodesInRow(i, this._player))
-      score -= this.CalcScoreForOpponentNodes(this.getNodesInRow(i, this.getNextPlayer()))
-      score += this.CalcScoreForPlayerNodes(this.getNodesInColumn(i, this._player))
-      score -= this.CalcScoreForOpponentNodes(this.getNodesInColumn(i, this.getNextPlayer()))
+      score += this.scoreRow(i, this._player)
+      score -= this.scoreRow(i, this.getNextPlayer())
     }
 
-    score += this.CalcScoreForPlayerNodes(this.getNodesInMainDiagonal(this._player))
-    score -= this.CalcScoreForOpponentNodes(this.getNodesInMainDiagonal(this.getNextPlayer()))
+    return score
+  }
 
-    score += this.CalcScoreForPlayerNodes(this.getNodesInSecondaryDiagonal(this._player))
-    score -= this.CalcScoreForOpponentNodes(this.getNodesInSecondaryDiagonal(this.getNextPlayer()))
+  public evaluateColumns(): number {
+    let score = 0
+    for (let i = 0; i < 3; i++) {
+      score += this.scoreColumn(i, this._player)
+      score -= this.scoreColumn(i, this.getNextPlayer())
+    }
+
+    return score
+  }
+
+  public evaluateMainDiagonal(): number {
+    let score = 0
+
+    score += this.scoreMainDiagonal(this._player)
+    score -= this.scoreMainDiagonal(this.getNextPlayer())
+
+    return score
+  }
+
+  public evaluateSecondaryDiagonal(): number {
+    let score = 0
+
+    score += this.scoreSecondaryDiagonal(this._player)
+    score -= this.scoreSecondaryDiagonal(this.getNextPlayer())
 
     return score
   }
@@ -85,20 +117,20 @@ export class TicTacToeBoard implements IBoard {
       let player = j === 0 ? this._player : this.getNextPlayer()
 
       for (let i = 0; i < 3; i++) {
-        if (this.getNodesInRow(i, player).length === 3) {
+        if (this.countPlayerNodesInRow(i, player) === 3) {
           return true
         }
 
-        if (this.getNodesInColumn(i, player).length === 3) {
+        if (this.countPlayerNodesInColumn(i, player) === 3) {
           return true
         }
       }
 
-      if (this.getNodesInMainDiagonal(player).length === 3) {
+      if (this.countPlayerNodesInMainDiagonal(player) === 3) {
         return true
       }
 
-      if (this.getNodesInSecondaryDiagonal(player).length === 3) {
+      if (this.countPlayerNodesInSecondaryDiagonal(player) === 3) {
         return true
       }
     }
@@ -115,50 +147,62 @@ export class TicTacToeBoard implements IBoard {
   }
 
   private getNextPlayer(): ITicTacToePlayer {
-    return this._player === this._player1 ? this._player2 : this._player1
-  }
-
-  private CalcScoreForPlayerNodes(nodes: string[]): number {
-    if (nodes.length === 3) {
-      return 100
-    }
-
-    if (nodes.length === 2) {
-      return 10
-    }
-
-    return 0
-  }
-
-  private CalcScoreForOpponentNodes(nodes: string[]): number {
-    if (nodes.length === 3) {
-      return 100
-    }
-
-    if (nodes.length === 2) {
-      return 10
-    }
-
-    return 0
-  }
-
-  private getNodesInRow(i: number, player: ITicTacToePlayer): string[] {
-    return this._nodes[i].filter((n) => n === player.id)
-  }
-
-  private getNodesInColumn(i: number, player: ITicTacToePlayer): string[] {
-    return this._nodes.filter((n) => n[i] === player.id).map((n) => n[i])
-  }
-
-  private getNodesInMainDiagonal(player: ITicTacToePlayer): string[] {
-    return this._nodes.filter((n, i) => n[i] === player.id).map((n, i) => n[i])
-  }
-
-  private getNodesInSecondaryDiagonal(player: ITicTacToePlayer): string[] {
-    return this._nodes.filter((n, i) => n[2 - i] === player.id).map((n, i) => n[2 - i])
+    return this.getOppositePlayer(this._player)
   }
 
   private isEmptyNode(x: number, y: number): boolean {
     return !this._nodes[x][y].trim()
+  }
+
+  private countPlayerNodesInRow(i: number, player: ITicTacToePlayer): number {
+    return this._nodes[i].filter((n) => n === player.id).length
+  }
+
+  private countPlayerNodesInColumn(i: number, player: ITicTacToePlayer): number {
+    return this._nodes.filter((n) => n[i] === player.id).length
+  }
+
+  private countPlayerNodesInMainDiagonal(player: ITicTacToePlayer): number {
+    return this._nodes.filter((n, i) => n[i] === player.id).length
+  }
+
+  private countPlayerNodesInSecondaryDiagonal(player: ITicTacToePlayer): number {
+    return this._nodes.filter((n, i) => n[2 - i] === player.id).length
+  }
+
+  private scoreRow(i: number, player: ITicTacToePlayer): number {
+    if (this._nodes[i].some((n) => n === this.getOppositePlayer(player).id)) {
+      return 0
+    }
+
+    return 1
+  }
+
+  private scoreColumn(i: number, player: ITicTacToePlayer): number {
+    if (this._nodes.some((n) => n[i] === this.getOppositePlayer(player).id)) {
+      return 0
+    }
+
+    return 1
+  }
+
+  private scoreMainDiagonal(player: ITicTacToePlayer): number {
+    if (this._nodes.some((n, i) => n[i] === this.getOppositePlayer(player).id)) {
+      return 0
+    }
+
+    return 1
+  }
+
+  private scoreSecondaryDiagonal(player: ITicTacToePlayer): number {
+    if (this._nodes.some((n, i) => n[2 - i] === this.getOppositePlayer(player).id)) {
+      return 0
+    }
+
+    return 1
+  }
+
+  private getOppositePlayer(player: ITicTacToePlayer): ITicTacToePlayer {
+    return player === this._player1 ? this._player2 : this._player1
   }
 }
