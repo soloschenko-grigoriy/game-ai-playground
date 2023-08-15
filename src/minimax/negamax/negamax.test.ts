@@ -444,8 +444,8 @@ describe('negamax', () => {
 
         it('should return 8 if player has a chance to win in every row (+3), column (+3) and diagonal (+2) but adversary has none', () => {
           const board = new TicTacToeBoard(player1, player2, [
-            ['x', 'x', 'x'],
-            ['x', ' ', ' '],
+            ['x', 'x', ' '],
+            [' ', 'x', 'x'],
             ['x', ' ', ' '],
           ])
 
@@ -454,12 +454,32 @@ describe('negamax', () => {
 
         it('should return -8 if adversary has a chance to win in every row (+3), column (+3) and diagonal (+2) but player has none', () => {
           const board = new TicTacToeBoard(player1, player2, [
-            ['o', 'o', 'o'],
-            ['o', ' ', ' '],
+            ['o', 'o', ' '],
+            [' ', 'o', 'o'],
             ['o', ' ', ' '],
           ])
 
           expect(board.evaluate()).toBe(-8)
+        })
+
+        it('should return Infinity if player marked all in the main diagonal', () => {
+          const board = new TicTacToeBoard(player1, player2, [
+            ['x', ' ', ' '],
+            [' ', 'x', ' '],
+            [' ', ' ', 'x'],
+          ])
+
+          expect(board.evaluate()).toBe(Infinity)
+        })
+
+        it('should return -Infinity if adversary marked all in the main diagonal', () => {
+          const board = new TicTacToeBoard(player1, player2, [
+            ['o', ' ', ' '],
+            [' ', 'o', ' '],
+            [' ', ' ', 'o'],
+          ])
+
+          expect(board.evaluate()).toBe(-Infinity)
         })
       })
     })
@@ -621,8 +641,8 @@ describe('negamax', () => {
         ])
 
         const { move: move1, score: score1 } = negamax(board.clone(), maxDepth, 0)
-        expect(move1).toEqual({ x: 1, y: 2 })
-        expect(score1).toBe(220)
+        expect(move1).toEqual({ x: 2, y: 2 })
+        expect(score1).toBe(-Infinity)
 
         // no moves was made on actual board (aka cloning works)
         expect(board.nodes).toStrictEqual<string[][]>([
@@ -637,104 +657,80 @@ describe('negamax', () => {
         expect(board.nodes).toStrictEqual<string[][]>([
           [' ', ' ', ' '],
           [' ', ' ', ' '],
-          [' ', 'x', ' '],
+          [' ', ' ', 'x'],
         ])
 
         // next turn
         const { move: move2, score: score2 } = negamax(board.clone(), maxDepth, 0)
-        expect(move2).toEqual({ x: 2, y: 2 })
-        expect(score2).toBe(-40)
+        expect(move2).toEqual({ x: 2, y: 1 })
+        expect(score2).toBe(-Infinity)
 
         board.makeMove(move2 as ITicTacToeMove)
         expect(board.isGameOver()).toBe(false)
         expect(board.nodes).toStrictEqual<string[][]>([
           [' ', ' ', ' '],
-          [' ', ' ', ' '],
-          [' ', 'x', 'o'],
+          [' ', ' ', 'o'],
+          [' ', ' ', 'x'],
         ])
 
         const { move: move3, score: score3 } = negamax(board.clone(), maxDepth, 0)
         expect(move3).toEqual({ x: 2, y: 0 })
-        expect(score3).toBe(40)
+        expect(score3).toBe(-Infinity)
 
         board.makeMove(move3 as ITicTacToeMove)
         expect(board.isGameOver()).toBe(false)
         expect(board.nodes).toStrictEqual<string[][]>([
           [' ', ' ', 'x'],
-          [' ', ' ', ' '],
-          [' ', 'x', 'o'],
+          [' ', ' ', 'o'],
+          [' ', ' ', 'x'],
         ])
 
         const { move: move4, score: score4 } = negamax(board.clone(), maxDepth, 0)
-        expect(move4).toEqual({ x: 2, y: 1 })
-        expect(score4).toBe(-130)
+        expect(move4).toEqual({ x: 1, y: 2 })
+        expect(score4).toBe(-Infinity)
 
         board.makeMove(move4 as ITicTacToeMove)
         expect(board.isGameOver()).toBe(false)
         expect(board.nodes).toStrictEqual<string[][]>([
           [' ', ' ', 'x'],
           [' ', ' ', 'o'],
-          [' ', 'x', 'o'],
+          [' ', 'o', 'x'],
         ])
 
         const { move: move5, score: score5 } = negamax(board.clone(), maxDepth, 0)
-        expect(move5).toEqual({ x: 0, y: 1 })
-        expect(score5).toBe(130)
+        expect(move5).toEqual({ x: 1, y: 1 })
+        expect(score5).toBe(-Infinity)
 
         board.makeMove(move5 as ITicTacToeMove)
         expect(board.isGameOver()).toBe(false)
         expect(board.nodes).toStrictEqual<string[][]>([
           [' ', ' ', 'x'],
-          ['x', ' ', 'o'],
           [' ', 'x', 'o'],
+          [' ', 'o', 'x'],
         ])
 
         const { move: move6, score: score6 } = negamax(board.clone(), maxDepth, 0)
-        expect(move6).toEqual({ x: 0, y: 0 })
-        expect(score6).toBe(240)
+        expect(move6).toEqual({ x: 1, y: 0 })
+        expect(score6).toBe(-Infinity)
 
         board.makeMove(move6 as ITicTacToeMove)
         expect(board.isGameOver()).toBe(false)
         expect(board.nodes).toStrictEqual<string[][]>([
-          ['o', ' ', 'x'],
-          ['x', ' ', 'o'],
+          [' ', 'o', 'x'],
           [' ', 'x', 'o'],
+          [' ', 'o', 'x'],
         ])
 
         const { move: move7, score: score7 } = negamax(board.clone(), maxDepth, 0)
-        expect(move7).toEqual({ x: 1, y: 0 })
-        expect(score7).toBe(110)
+        expect(move7).toEqual({ x: 0, y: 2 })
+        expect(score7).toBe(-Infinity)
 
         board.makeMove(move7 as ITicTacToeMove)
-        expect(board.isGameOver()).toBe(false)
-        expect(board.nodes).toStrictEqual<string[][]>([
-          ['o', 'x', 'x'],
-          ['x', ' ', 'o'],
-          [' ', 'x', 'o'],
-        ])
-
-        const { move: move8, score: score8 } = negamax(board.clone(), maxDepth, 0)
-        expect(move8).toEqual({ x: 0, y: 2 })
-        expect(score8).toBe(220)
-
-        board.makeMove(move8 as ITicTacToeMove)
-        expect(board.isGameOver()).toBe(false)
-        expect(board.nodes).toStrictEqual<string[][]>([
-          ['o', 'x', 'x'],
-          ['x', ' ', 'o'],
-          ['o', 'x', 'o'],
-        ])
-
-        const { move: move9, score: score9 } = negamax(board.clone(), maxDepth, 0)
-        expect(move9).toEqual({ x: 1, y: 1 })
-        expect(score9).toBe(-90)
-
-        board.makeMove(move9 as ITicTacToeMove)
         expect(board.isGameOver()).toBe(true)
         expect(board.nodes).toStrictEqual<string[][]>([
-          ['o', 'x', 'x'],
-          ['x', 'x', 'o'],
-          ['o', 'x', 'o'],
+          [' ', 'o', 'x'],
+          [' ', 'x', 'o'],
+          ['x', 'o', 'x'],
         ])
       })
 

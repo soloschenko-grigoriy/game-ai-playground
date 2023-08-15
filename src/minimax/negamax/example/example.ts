@@ -54,6 +54,28 @@ export class TicTacToeBoard implements IBoard {
   }
 
   public evaluate(): number {
+    for (let j = 0; j < 2; j++) {
+      let player = j === 0 ? this._player : this.getNextPlayer()
+
+      for (let i = 0; i < 3; i++) {
+        if (this.countPlayerNodesInRow(i, player) === 3) {
+          return player === this._player ? Infinity : -Infinity
+        }
+
+        if (this.countPlayerNodesInColumn(i, player) === 3) {
+          return player === this._player ? Infinity : -Infinity
+        }
+      }
+
+      if (this.countPlayerNodesInMainDiagonal(player) === 3) {
+        return player === this._player ? Infinity : -Infinity
+      }
+
+      if (this.countPlayerNodesInSecondaryDiagonal(player) === 3) {
+        return player === this._player ? Infinity : -Infinity
+      }
+    }
+
     let score = 0
 
     score += this.evaluateRows()
