@@ -119,6 +119,11 @@ export class TicTacToeBoard implements IBoard {
       }
     }
 
+    let bonus = 0
+    if (this._nodes[1][1] === this._player.id) {
+      bonus += 100
+    }
+
     const r1 = this.calcRows(this._player)
     const r2 = this.calcColumns(this._player)
     const r3 = this.calcMainDiag(this._player)
@@ -129,7 +134,7 @@ export class TicTacToeBoard implements IBoard {
     const o2 = r1.o2 + r2.o2 + r3.o2 + r4.o2
     const o1 = r1.o1 + r2.o1 + r3.o1 + r4.o1
 
-    return 3 * x2 + x1 - (3 * o2 + o1)
+    return 3 * x2 + x1 - (3 * o2 + o1) + bonus
   }
 
   // X2 is the number of lines with 2 X’s and a blank
