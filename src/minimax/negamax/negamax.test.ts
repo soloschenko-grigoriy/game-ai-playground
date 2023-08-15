@@ -1059,6 +1059,72 @@ describe('negamax', () => {
             ]).evaluate(),
           ).toBe(-Infinity)
         })
+
+        it('should incentivize blocking opponent move', () => {
+          expect(
+            new TicTacToeBoard(player1, player2, [
+              [' ', ' ', ' '],
+              [' ', 'o', ' '],
+              ['o', ' ', ' '],
+            ]).evaluate(),
+          ).toBe(-8)
+
+          expect(
+            new TicTacToeBoard(player1, player2, [
+              [' ', ' ', 'x'],
+              [' ', 'o', ' '],
+              ['o', ' ', ' '],
+            ]).evaluate(),
+          ).toBe(-3) // this one should be of best score
+
+          expect(
+            new TicTacToeBoard(player1, player2, [
+              ['x', ' ', ' '],
+              [' ', 'o', ' '],
+              ['o', ' ', ' '],
+            ]).evaluate(),
+          ).toBe(-5)
+
+          expect(
+            new TicTacToeBoard(player1, player2, [
+              [' ', ' ', ' '],
+              ['x', 'o', ' '],
+              ['o', ' ', ' '],
+            ]).evaluate(),
+          ).toBe(-6)
+
+          expect(
+            new TicTacToeBoard(player1, player2, [
+              [' ', 'x', ' '],
+              [' ', 'o', ' '],
+              ['o', ' ', ' '],
+            ]).evaluate(),
+          ).toBe(-6)
+
+          expect(
+            new TicTacToeBoard(player1, player2, [
+              [' ', ' ', ' '],
+              [' ', 'o', ' '],
+              ['o', 'x', ' '],
+            ]).evaluate(),
+          ).toBe(-6)
+
+          expect(
+            new TicTacToeBoard(player1, player2, [
+              [' ', ' ', ' '],
+              [' ', 'o', 'x'],
+              ['o', ' ', ' '],
+            ]).evaluate(),
+          ).toBe(-6)
+
+          expect(
+            new TicTacToeBoard(player1, player2, [
+              [' ', ' ', ' '],
+              [' ', 'o', ' '],
+              ['o', ' ', 'x'],
+            ]).evaluate(),
+          ).toBe(-5)
+        })
       })
     })
 
