@@ -4,8 +4,6 @@ import { ITicTacToeMove, ITicTacToePlayer } from './example.h'
 export class TicTacToeBoard implements IBoard {
   private readonly _nodes: string[][]
 
-  private _player: ITicTacToePlayer
-
   public get nodes(): string[][] {
     return [...this._nodes.map((row) => [...row])]
   }
@@ -13,10 +11,10 @@ export class TicTacToeBoard implements IBoard {
   constructor(
     private readonly _player1: ITicTacToePlayer,
     private readonly _player2: ITicTacToePlayer,
+    private _player: ITicTacToePlayer,
 
     nodes?: string[][],
   ) {
-    this._player = _player1
     this._nodes = [
       [' ', ' ', ' '],
       [' ', ' ', ' '],
@@ -50,7 +48,15 @@ export class TicTacToeBoard implements IBoard {
 
     this._player = this.getNextPlayer()
 
-    return this.clone()
+    return this
+  }
+
+  public undoMove({ x, y }: ITicTacToeMove): TicTacToeBoard {
+    this._nodes[y][x] = ' '
+
+    this._player = this.getNextPlayer()
+
+    return this
   }
 
   public evaluateOld(): number {
@@ -119,11 +125,6 @@ export class TicTacToeBoard implements IBoard {
       }
     }
 
-    let bonus = 0
-    if (this._nodes[1][1] === this._player.id) {
-      bonus += 100
-    }
-
     const r1 = this.calcRows(this._player)
     const r2 = this.calcColumns(this._player)
     const r3 = this.calcMainDiag(this._player)
@@ -134,7 +135,7 @@ export class TicTacToeBoard implements IBoard {
     const o2 = r1.o2 + r2.o2 + r3.o2 + r4.o2
     const o1 = r1.o1 + r2.o1 + r3.o1 + r4.o1
 
-    return 3 * x2 + x1 - (3 * o2 + o1) + bonus
+    return 3 * x2 + x1 - (3 * o2 + o1)
   }
 
   // X2 is the number of lines with 2 X’s and a blank
@@ -352,7 +353,7 @@ export class TicTacToeBoard implements IBoard {
   }
 
   public clone(): TicTacToeBoard {
-    return new TicTacToeBoard(this._player1, this._player2, this.nodes)
+    return new TicTacToeBoard(this._player1, this._player2, this._player, this.nodes)
   }
 
   private getNextPlayer(): ITicTacToePlayer {

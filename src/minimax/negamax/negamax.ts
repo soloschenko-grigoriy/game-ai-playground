@@ -12,14 +12,14 @@ export function negamax(board: IBoard, maxDepth: number, currentDepth: number): 
   // Go thru each move
   for (let move of board.getMoves()) {
     const newBoard = board.makeMove(move)
-
     // Recurse
     const { score: recursedScore } = negamax(newBoard, maxDepth, currentDepth + 1)
+    board.undoMove(move)
 
     const currentScore = -recursedScore
 
     // Update the best score
-    if (recursedScore > bestScore) {
+    if (currentScore > bestScore) {
       bestScore = currentScore
       bestMove = move
     }
