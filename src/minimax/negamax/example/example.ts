@@ -314,10 +314,6 @@ export class TicTacToeBoard implements IBoard {
     return score
   }
 
-  public currentPlayer(): ITicTacToePlayer {
-    return this._player
-  }
-
   public isGameOver(): boolean {
     if (!this._nodes.some((row) => row.some((node) => !node.trim()))) {
       return true

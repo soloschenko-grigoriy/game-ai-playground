@@ -3,7 +3,6 @@ export interface IBoard {
   makeMove(move: IMove): IBoard
   undoMove(move: IMove): IBoard
   evaluate(): number
-  currentPlayer(): IPlayer
   isGameOver(): boolean
 }
 
