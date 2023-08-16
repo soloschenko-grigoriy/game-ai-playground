@@ -667,7 +667,7 @@ describe('negamax', () => {
           [' ', ' ', ' '],
         ])
 
-        const { move: move1, score: score1 } = negamax(board.clone(), maxDepth, 0)
+        const { move: move1, score: score1 } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
         expect(move1).toEqual({ x: 1, y: 1 })
         expect(score1).toBe(5)
 
@@ -688,7 +688,7 @@ describe('negamax', () => {
         ])
 
         // next turn
-        const { move: move2, score: score2 } = negamax(board.clone(), maxDepth, 0)
+        const { move: move2, score: score2 } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
         expect(move2).toEqual({ x: 0, y: 0 })
         expect(score2).toBe(-0)
 
@@ -700,7 +700,7 @@ describe('negamax', () => {
           [' ', ' ', ' '],
         ])
 
-        const { move: move3, score: score3 } = negamax(board.clone(), maxDepth, 0)
+        const { move: move3, score: score3 } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
         expect(move3).toEqual({ x: 1, y: 2 })
         expect(score3).toBe(5)
 
@@ -712,7 +712,7 @@ describe('negamax', () => {
           [' ', 'x', ' '],
         ])
 
-        const { move: move4, score: score4 } = negamax(board.clone(), maxDepth, 0)
+        const { move: move4, score: score4 } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
         expect(move4).toEqual({ x: 1, y: 0 })
         expect(score4).toBe(1)
 
@@ -724,7 +724,7 @@ describe('negamax', () => {
           [' ', 'x', ' '],
         ])
 
-        const { move: move5, score: score5 } = negamax(board.clone(), maxDepth, 0)
+        const { move: move5, score: score5 } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
         expect(move5).toEqual({ x: 2, y: 0 })
         expect(score5).toBe(4)
 
@@ -736,7 +736,7 @@ describe('negamax', () => {
           [' ', 'x', ' '],
         ])
 
-        const { move: move6, score: score6 } = negamax(board.clone(), maxDepth, 0)
+        const { move: move6, score: score6 } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
         expect(move6).toEqual({ x: 0, y: 2 })
         expect(score6).toBe(-0)
 
@@ -748,7 +748,7 @@ describe('negamax', () => {
           ['o', 'x', ' '],
         ])
 
-        const { move: move7, score: score7 } = negamax(board.clone(), maxDepth, 0)
+        const { move: move7, score: score7 } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
         expect(move7).toEqual({ x: 0, y: 1 })
         expect(score7).toBe(-0)
 
@@ -760,7 +760,7 @@ describe('negamax', () => {
           ['o', 'x', ' '],
         ])
 
-        const { move: move8, score: score8 } = negamax(board.clone(), maxDepth, 0)
+        const { move: move8, score: score8 } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
         expect(move8).toEqual({ x: 2, y: 1 })
         expect(score8).toBe(0)
 
@@ -772,7 +772,7 @@ describe('negamax', () => {
           ['o', 'x', ' '],
         ])
 
-        const { move: move9, score: score9 } = negamax(board.clone(), maxDepth, 0)
+        const { move: move9, score: score9 } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
         expect(move9).toEqual({ x: 2, y: 2 })
         expect(score9).toBe(-0)
 
@@ -792,7 +792,7 @@ describe('negamax', () => {
         const board = new TicTacToeBoard(player1, player2, player1)
 
         while (board.isGameOver() === false) {
-          const { move, score } = negamax(board.clone(), maxDepth, 0)
+          const { move, score } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
           board.makeMove(move as ITicTacToeMove)
           console.log(score)
           console.log(board.toString())

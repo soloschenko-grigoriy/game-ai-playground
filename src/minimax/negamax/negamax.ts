@@ -1,6 +1,6 @@
 import { IBoard, IResult, IMove, IPlayer } from './negamax.h'
 
-export function negamax(board: IBoard, maxDepth: number, currentDepth: number): IResult {
+export function negamax(board: IBoard, maxDepth: number, currentDepth: number, alpha: number, beta: number): IResult {
   if (board.isGameOver() || currentDepth === maxDepth) {
     return { score: board.evaluate(), move: null }
   }
@@ -13,7 +13,7 @@ export function negamax(board: IBoard, maxDepth: number, currentDepth: number): 
   for (let move of board.getMoves()) {
     const newBoard = board.makeMove(move)
     // Recurse
-    const { score } = negamax(newBoard, maxDepth, currentDepth + 1)
+    const { score } = negamax(newBoard, maxDepth, currentDepth + 1, -beta, -Math.max(alpha, bestScore))
     board.undoMove(move)
 
     const currentScore = -score
@@ -22,6 +22,10 @@ export function negamax(board: IBoard, maxDepth: number, currentDepth: number): 
     if (currentScore > bestScore) {
       bestScore = currentScore
       bestMove = move
+    }
+
+    if (bestScore >= beta) {
+      return { score: bestScore, move: bestMove }
     }
   }
 
