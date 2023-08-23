@@ -791,13 +791,53 @@ describe('negamax', () => {
         const maxDepth = 3
         const board = new TicTacToeBoard(player1, player2, player1)
 
+        let x = null
+
         while (board.isGameOver() === false) {
           const { move, score } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
           board.makeMove(move as ITicTacToeMove)
-          console.log(score)
-          console.log(board.toString())
+          // console.log('score', score)
+          // console.log(board.toString())
+          x = score
         }
+
+        console.log('x', x)
       })
+
+      it('benchmark', () => {
+        const play = (attempt: number): number => {
+          const start = Date.now()
+
+          const maxDepth = 10
+          const board = new TicTacToeBoard(player1, player2, player1)
+
+          while (board.isGameOver() === false) {
+            const { move, score } = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
+            board.makeMove(move as ITicTacToeMove)
+          }
+
+          return Date.now() - start
+        }
+
+        const results: number[] = []
+        for (let i = 0; i < 1000; i++) {
+          results[i] = play(i)
+        }
+
+        const data = {
+          min: Math.min(...results),
+          max: Math.max(...results),
+          avg: results.reduce((acc, curr) => acc + curr, 0) / results.length,
+          med: results.sort()[Math.floor(results.length / 2)],
+        }
+
+        console.log(data)
+        // 10: { min: 22, max: 46, avg: 25.4, med: 23 }
+      })
+    })
+
+    describe('aspiration search w abNegamax', () => {
+      // const
     })
   })
 })
