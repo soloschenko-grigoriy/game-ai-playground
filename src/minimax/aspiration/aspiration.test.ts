@@ -13,18 +13,22 @@ describe('aspiration', () => {
   it('should work', () => {
     // just playthru
 
-    const start = Date.now()
-
-    const maxDepth = 3
+    const maxDepth = 10
     const board = new TicTacToeBoard(player1, player2, player1)
 
-    while (board.isGameOver() === false) {
-      const { move, score } = aspirationSearch(board.clone(), maxDepth, 5, 10)
-      board.makeMove(move as ITicTacToeMove)
-      console.log('score', score)
-      console.log(board.toString())
-    }
-    console.log('time', Date.now() - start)
+    const start = Date.now()
+
+    const res = aspirationSearch(board.clone(), maxDepth, 0, 1)
+    const end = Date.now()
+    console.log(`time: ${end - start}ms, score: ${res.score}`)
+
+    // time: 41ms, score: 0
+    // while (board.isGameOver() === false) {
+    //   board.makeMove(move as ITicTacToeMove)
+    // console.log('score', res.score)
+    //   console.log('score', score)
+    //   console.log(board.toString())
+    // }
   })
 
   it('benchmark', () => {
@@ -34,16 +38,17 @@ describe('aspiration', () => {
       const maxDepth = 10
       const board = new TicTacToeBoard(player1, player2, player1)
 
-      while (board.isGameOver() === false) {
-        const { move, score } = aspirationSearch(board.clone(), maxDepth, -0, 3)
-        board.makeMove(move as ITicTacToeMove)
-      }
+      const { move, score } = aspirationSearch(board.clone(), maxDepth, -0, 3)
+      //   while (board.isGameOver() === false) {
+      // const { move, score } = aspirationSearch(board.clone(), maxDepth, -0, 3)
+      // board.makeMove(move as ITicTacToeMove)
+      //   }
 
       return Date.now() - start
     }
 
     const results: number[] = []
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 100; i++) {
       results[i] = play(i)
     }
 

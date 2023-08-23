@@ -804,6 +804,17 @@ describe('negamax', () => {
         console.log('x', x)
       })
 
+      it('simple benchmark', () => {
+        const maxDepth = 10
+        const board = new TicTacToeBoard(player1, player2, player1)
+
+        const start = Date.now()
+
+        const res = negamax(board.clone(), maxDepth, 0, -Infinity, Infinity)
+        const end = Date.now()
+        console.log(`time: ${end - start}ms, score: ${res.score}`)
+      })
+
       it('benchmark', () => {
         const play = (attempt: number): number => {
           const start = Date.now()

@@ -7,11 +7,11 @@ export const aspirationSearch = (board: IBoard, maxDepth: number, previousScore:
   while (true) {
     const { score, move } = negamax(board, maxDepth, 0, alpha, beta)
     if (score <= alpha) {
+      console.log(`fail low: ${score} <= ${alpha}`)
       alpha = -Infinity
-      //   console.log(`fail low: ${score} <= ${alpha}`)
     } else if (score >= beta) {
+      console.log(`fail high: ${score} >= ${beta}`)
       beta = Infinity
-      //   console.log(`fail high: ${score} >= ${beta}`)
     } else {
       return { score, move }
     }
