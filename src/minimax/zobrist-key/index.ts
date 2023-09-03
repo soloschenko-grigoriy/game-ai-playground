@@ -1,1 +1,1 @@
-export * './zobrist-key'
+export * from './zobrist-key'

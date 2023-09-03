@@ -2,7 +2,7 @@ import { IBoard, IMove, IResult, ITableEntry } from './memory-enhanced-test.h'
 import { TranspositionTable } from './transposition-table'
 
 let lowestDepth = -Infinity
-const table = new TranspositionTable(1000)
+const table = new TranspositionTable(100000)
 
 export const memoryEnhancedTest = (board: IBoard, maxDepth: number, currentDepth: number, gamma: number): IResult => {
   if (currentDepth > lowestDepth) {
